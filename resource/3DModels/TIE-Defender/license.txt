@@ -1,0 +1,11 @@
+Model Information:
+* title:	Star Wars: TIE/d Defender
+* source:	https://sketchfab.com/3d-models/star-wars-tied-defender-22bc65f9eb4640b6ae58b1b5e184e80e
+* author:	Daniel (https://sketchfab.com/DanielAndersson)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Star Wars: TIE/d Defender" (https://sketchfab.com/3d-models/star-wars-tied-defender-22bc65f9eb4640b6ae58b1b5e184e80e) by Daniel (https://sketchfab.com/DanielAndersson) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

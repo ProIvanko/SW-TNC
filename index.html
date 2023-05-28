@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <!-- <meta http-equiv="X-UA-Compatible" content="IE=edge"> -->
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link href="/styles/styles.css" rel="stylesheet" type="text/css">
+
+    <link href="/styles/loginWindowBackground.css" rel="stylesheet" type="text/css">
+
+    <link rel="icon" type="image/x-icon" href="resource\pageMedia\empireLogo.png">
+    <title>SW_BF_JS</title>
+    
+</head>
+<body>
+<div id="mainPage" class="mainPage">
+    <div class="mainMenuName">
+        <h1 class="mainMenuName1"> Star Wars</h1>
+        <h2 class="mainMenuName2">The new code</h2>
+    </div>
+    <div id ='loginWindow' class="loginWindow">
+
+        <div class="mainWindowContent">
+            
+            <form class="formLogin">
+                <input
+                    id="formInputLogin"
+                    class="formInputLogin formElement"
+                    name="formLogin"
+                    type="text" 
+                    minlength="3" 
+                    maxlength="12" 
+                    autocomplete="name"                    placeholder="Логин" 
+                    required
+                >
+    
+                <input
+                    id="formInputPassword"
+                    class="formInputPassword formElement"
+                    name="formPassword"
+                    type="password" 
+                    minlength="4" 
+                    maxlength="16" 
+                    placeholder="Пароль" 
+                    autocomplete="current-password"
+                    required
+                >
+            </form>
+    
+            <button 
+                class="formBtnEnter loginBtn formElement" 
+                id="formBtnEnter" 
+                
+            >Войти</button>
+        
+            <button
+                class="btnRegister registrationBtn formElement" 
+                id="btnRegister" 
+            >Регистрация</button>
+        </div>
+        <div class="backgroundOpacity"></div>
+
+    </div>
+    
+    <div id="registrationWindow" class="registrationWindow сlosedWindow">
+        <div>
+            <div class="registrationLogin">
+                <input
+                    class="registrationLogin formElement"
+                    type="text" 
+                    minlength="3" 
+                    maxlength="12" 
+                    placeholder="Логин" 
+                >
+    
+                <input
+                    class="registrationPassword formElement"
+                    type="text" 
+                    minlength="6" 
+                    maxlength="50" 
+                    placeholder="Пароль" 
+                >
+    
+                <input
+                class="registrationPassword formElement"
+                type="text" 
+                minlength="6" 
+                maxlength="50" 
+                placeholder="Подтвердите пароль" 
+            >
+                <div class="sideChoosingDiv">
+                    <img class="rebelPic sidePic pickedSidePic" 
+                    id="rebelPic"
+                    src="resource\pageMedia\rebelLogo.png" alt="Rebel" >
+                    <img id="empirePic" class="empirePic sidePic" src="resource\pageMedia\empireLogo.png" alt="Empire" >
+                </div>
+    
+                
+                <button 
+                    class="registrationUserBtn btnRegister" 
+                    id="registrationUserBtn" 
+                    
+                >Зарегистрировать</button>
+    
+            </div>
+        </div>
+    </div>
+    
+</div>
+
+<div class="overlayWindowOpaque" id="overlayWindow">
+</div>
+
+<div id="hangarPage" class="hangarPage сlosedWindow hangarEmpire" >
+    <video 
+        id="backgroundVideo" 
+        autoplay 
+        loop 
+        muted>
+    </video>
+
+    <button 
+        class="formBtnEnter loginBtn formElement" 
+        id="btnGalxyMap" 
+    >Галактическая карта</button>
+
+    <button 
+        class="formBtnEnter loginBtn formElement" 
+        id="btnArsenal"
+    >Арсенал</button>
+
+    <button 
+        class="formBtnEnter loginBtn formElement" 
+        id="btnOptions" 
+    >Настройки</button>
+
+    <button 
+        class="formBtnEnter loginBtn formElement" 
+        id="btnStartBattle" 
+    >Начать бой</button>
+
+</div>
+
+
+
+<script>
+
+</script>
+
+<script src="./src/main.js" type="module"></script>
+
+</body>
+</html>

@@ -1,0 +1,11 @@
+Model Information:
+* title:	Mon Calamari
+* source:	https://sketchfab.com/3d-models/mon-calamari-e08e911d18344d3480439b387fc2ee3f
+* author:	StarWars-Universe (https://sketchfab.com/SWU)
+
+Model License:
+* license type:	CC-BY-NC-SA-4.0 (http://creativecommons.org/licenses/by-nc-sa/4.0/)
+* requirements:	Author must be credited. No commercial use. Modified versions must have the same license.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Mon Calamari" (https://sketchfab.com/3d-models/mon-calamari-e08e911d18344d3480439b387fc2ee3f) by StarWars-Universe (https://sketchfab.com/SWU) licensed under CC-BY-NC-SA-4.0 (http://creativecommons.org/licenses/by-nc-sa/4.0/)
