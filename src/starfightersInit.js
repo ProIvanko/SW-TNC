@@ -11,7 +11,7 @@ function starfightersInit(scene, loader){
             star_destroyer.scale.set(50,50,50);
             star_destroyer.name = 'Star_Destroyer';
             scene.add(gltf.scene);
-            star_destroyer.position.x = -100000;//-100000
+            star_destroyer.position.x = -50000;//-100000
             star_destroyer.position.y = -6000;//-6000
             star_destroyer.position.z = 0;
         });
@@ -21,7 +21,7 @@ function starfightersInit(scene, loader){
             mon_calamari.scale.set(30,30,30);
             mon_calamari.name = 'Mon_Calamary';
             scene.add(gltf.scene);
-            mon_calamari.position.x = 100000;//100000
+            mon_calamari.position.x = 50000;//100000
             mon_calamari.position.y = -9000; //-9000
             mon_calamari.position.z = 0;
         });
@@ -29,12 +29,12 @@ function starfightersInit(scene, loader){
         for (let i=1; i<=10; i++){
             loader.load('resource/3DModels/A-Wing/scene.gltf', function(AWing){
                 AWingModel = AWing.scene
-                AWingModel.scale.set(1,1,1);
+                AWingModel.scale.set(10,10,10);
                 AWingModel.name = 'A-Wing';
                 AWingModel.type = `starfighter${i}`
                 let AWing01 = AWingModel;
                 scene.add(AWing01);
-                AWing01.position.z = i*10;
+                AWing01.position.z = i*500;
     
                 // const AWingShieldGeometry = new THREE.SphereGeometry( 5, 32, 16 );
                 // const AWingShieldMaterial = new THREE.MeshBasicMaterial( { color: 0x00FFFF,

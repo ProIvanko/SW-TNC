@@ -1,225 +1,267 @@
 //import {THREE, GLTFLoader, OrbitControls} from './three_libs_import.js';
-import {battleInit} from './battleModule.js'
+import {battleInit, battleWindowControl} from './battleModule.js'
 //import { BufferGeometryLoader } from 'three';
-import { loginWindow } from './loginWindow.js';
+import {mainContainer} from './mainContainerInit.js';
 import {mainWindowBackgroundInit, backgroundRemove} from './mainWindowBackground.js'
+import {userDataStorage, currentUserData} from './userDataStorage.js'
 
-//battleInit()
-mainWindowBackgroundInit()
-//start SPA module
-    // ---View---
-    const View = {
+function MVCModule(){
+/* ------- begin view -------- */
+function ModuleView() {
+    let myModuleContainer = null;
 
+    this.init = function(container) {
+    myModuleContainer = container;
     }
-    //---View End---
-    //---Model---
-    const Model = {
+}
+/* -------- end view --------- */
+/* ------- begin model ------- */
+function ModuleModel () {
+    let myModuleView = null;
 
+    this.init = function(view) {
+        myModuleView = view;
     }
-    //---Model End---
-    //---Controller---
-    const Controller = {
+}
+/* -------- end model -------- */
 
+/* ----- begin controller ---- */
+function ModuleController () {
+    let myModuleContainer = null;
+    let myModuleModel = null;
+
+    this.init = function(container, model) {
+        myModuleContainer = container;
+        myModuleModel = model;
     }
-    //---Controller End---
-//End SPA module
+};
+/* ------ end controller ----- */
+}
 
+function tryToEnter(){
+    const login = document.getElementById('formInputLogin').value.toLowerCase().trim();
+    const password = document.getElementById('formInputPassword').value;
+    const userKeys = userDataStorage.getUserKeys();
+    const loginField = document.getElementById('formInputLogin');
+    const passwordField = document.getElementById('formInputPassword');
 
-    //localstorage
-    const userDataStorage = {
-        userData:{},
+    if (Object.keys(userKeys).includes(login)) {
+        if (userKeys[login]==password){
+            // loginField.value = '';
+            // passwordField.value = '';
+            const userData = userDataStorage.userData[login.toLowerCase()]
+            currentUserData.currentUserInit(userData);
+            hangarWindowOpening();
+        } else {
+            passwordField.value = '';
+            passwordField.placeholder = 'Неверный пароль';
+            passwordField.classList.add('formWrong');
+            passwordField.focus();
+            setTimeout(() => {
+                passwordField.placeholder = 'Пароль';
+                passwordField.classList.remove('formWrong');
+            }, 2000);
+        }
+    } else {
+        loginField.value = '';
+        loginField.placeholder = 'Неверный логин';
+        loginField.classList.add('formWrong');
 
-        userAdd : function (userLogin, userPassword, userEmail, userSide) {
-            // const userID = userLogin.toLowerCase() + '_' + Date.now();
-            const userID = userLogin.toLowerCase();
-            this.userData[userID] = {userLogin, userPassword, userEmail, userSide
-            }
+        setTimeout(() => {
+            loginField.placeholder = 'Логин';
+            loginField.classList.remove('formWrong');
+        }, 2000);
+        loginField.focus();
+        passwordField.value = '';
+    }
+}
 
-            this.userData[userID].statistics = {
-                rebel : {
-                    wins:0,
-                    games: 0,
-                    inflictedDamage: 0,
-                    inflictedDamageToFlagman: 0,
-                    deaths: 0,
-                    userStats: function(){
-                        const outputString = `Игр сыграно: ${this.games}Побед: ${this.wins}
-                        Нанесено урона: ${this.inflictedDamage}
-                        Нанесено урона флагману: ${this.inflictedDamageToFlagman}
-                        Смертей: ${this.deaths}`
-                        return outputString
-                    }
-                },
-                empire : {
-                    wins:0,
-                    games: 0,
-                    inflictedDamage: 0,
-                    inflictedDamageToFlagman: 0,
-                    deaths: 0,
-                    userStats: function(){
-                        const outputString = `Игр сыграно: ${this.games}Побед: ${this.wins}
-                        Нанесено урона: ${this.inflictedDamage}
-                        Нанесено урона флагману: ${this.inflictedDamageToFlagman}
-                        Смертей: ${this.deaths}`
-                        return outputString
-                    }
-                },
-            },
-            this.userDataSendToLocalStorage();
-        },
+function tryToRegister(){
+    const userSide = rebelPic.classList.contains('pickedSidePic')?'rebel':'empire';
+    const loginField =  document.getElementById('registrationLogin')
+    const passwordField = document.getElementById('registrationPassword')
+    const passwordConfirmField = document.getElementById('registrationPasswordConfirm')
+    const userKeys = userDataStorage.getUserKeys();
 
-        userDataSendToLocalStorage : function(){
-            localStorage.setItem ('SWUserData', JSON.stringify(this.userData))
-        },
-
-        getUserKeys: function() {
-            const keysLoginPassword = {};
-            Object.keys(this.userData).forEach(element => {
-                keysLoginPassword[this.userData[element].userLogin.toLowerCase()] = this.userData[element].userPassword;
-
-            });
-            return keysLoginPassword;
+    function loginCheck(){
+        if ((Object.keys(userKeys).includes(loginField.value.toLowerCase().trim()))||(loginField.value.trim().length<3)) {
+            loginField.placeholder = (loginField.value.trim().length<3)?'Слишком короткий логин':'Логин существует';
+            loginField.value = '';
+            loginField.classList.add('formWrong');
+            setTimeout(() => {
+                loginField.placeholder = 'Логин';
+                loginField.classList.remove('formWrong');
+            }, 2000);
+            loginField.focus();
+            passwordField.value, passwordField.value = '';
+            return false
+        } else{
+            return true
         }
     };
 
-    const currentUserData = {
-        currentUserID: '',
-        // addStatistics : function(side, wins, games, inflictedDamage, inflictedDamageToFlagman, deaths) {
-        //             this[side].wins++;
-        //             this[side].games++;
-        //             this[side].inflictedDamage++;
-        //             this[side].inflictedDamageToFlagman++;
-        //             this[side].deaths++;
-        //         }
-    }
-
-    if (!localStorage.SWUserData) {
-        userDataStorage.userDataSendToLocalStorage()
-    } else {
-        userDataStorage.userData = JSON.parse(localStorage.getItem('SWUserData'))
-    }
-
-    userDataStorage.userAdd('Ivanko', '1243', 'ivanko1243@mail.ru', 'rebel');
-    userDataStorage.userAdd('Emily', '5678', 'emily1243@mail.ru', 'empire')
-    // console.log(userDataStorage.getUserKeys())
-    // console.log(userDataStorage.userData.ivanko.userLogin)
-
-    btnRegister.addEventListener('click', function (){
-        console.log('registerWindow')
-    })
-
-
-    const tryToEnter = function(){
-        const login = document.getElementById('formInputLogin').value.toLowerCase();
-        const password = document.getElementById('formInputPassword').value;
-        const userKeys = userDataStorage.getUserKeys();
-
-        if (Object.keys(userKeys).includes(login)) {
-            console.log('Login exist')
-            if (userKeys[login]==password){
-                document.getElementById('formInputLogin').value = '';
-                document.getElementById('formInputPassword').value = '';
-                hangarWindowOpening();
-            } else {
-                document.getElementById('formInputPassword').value = '';
-                document.getElementById('formInputPassword').placeholder = 'Неверный пароль';
-                document.getElementById('formInputPassword').classList.add('formWrong');
-                document.getElementById('formInputPassword').focus();
-                setTimeout(() => {
-                    document.getElementById('formInputPassword').placeholder = 'Пароль';
-                    document.getElementById('formInputPassword').classList.remove('formWrong');
-                }, 2000);
-            }
-        } else {
-            document.getElementById('formInputLogin').value = '';
-            document.getElementById('formInputLogin').placeholder = 'Неверный логин';
-            document.getElementById('formInputLogin').classList.add('formWrong');
-
+    function passwordCheck(){
+        if((passwordField.value.length<4)||(passwordField.value!=passwordConfirmField.value)){
+            passwordField.placeholder = (passwordField.value.length<4)?'Слишком короткий пароль':'Пароли не совпадают';
+            passwordField.value = '';
+            passwordConfirmField.value = '';
+            passwordField.classList.add('formWrong');
             setTimeout(() => {
-                document.getElementById('formInputLogin').placeholder = 'Логин';
-                document.getElementById('formInputLogin').classList.remove('formWrong');
+                passwordField.placeholder = 'Пароль';
+                passwordField.classList.remove('formWrong');
             }, 2000);
-
-            document.getElementById('formInputLogin').focus();
-            document.getElementById('formInputPassword').value = '';
+            passwordField.focus();
+            return false
+        } else {
+            return true
         }
+    };
+
+    userDataCheck()
+
+    function userDataCheck(){
+        if(loginCheck()&&passwordCheck()){
+            userDataStorage.userAdd(loginField.value, passwordField.value, userSide);
+            userDataStorage.userDataSendToLocalStorage();
+            loginField.value, passwordField.value.trim(), passwordConfirmField.value = ''
+            loginWindowOpening()
+        }
+    };
+
+};
+
+function loginWindowOpening(){
+    registrationWindow.classList.add('сlosedWindow');
+    loginWindow.classList.remove('сlosedWindow');
+}
+
+function registrationWindowOpening(){
+    loginWindow.classList.add('сlosedWindow');
+    registrationWindow.classList.remove('сlosedWindow');
+}
+
+function hangarWindowOpening() {
+    const backgroundVideoPath = '';
+    const choosedSide = currentUserData.userSide;
+    overlayWindow.classList.add('overlayWindowSolid');
+
+    setTimeout(() => {
+        escapeWindow.classList.add('сlosedWindow');
+
+        document.getElementById('battleWindow')?document.getElementById('battleWindow').style.display = 'none':false;
+
+        document.getElementById('mainBackgroundWindow')?backgroundRemove():false;
+        const videoElement = document.getElementById('backgroundVideo');
+        if (choosedSide=='empire'){
+            videoElement.innerHTML = 
+            `<source src="resource/pageMedia/empire-background.mp4" type="video/mp4">`
+        } else {
+            document.querySelector("link[rel*='icon']").href = "resource/pageMedia/rebelLogo.png";
+            videoElement.innerHTML = 
+            `<source src="resource/pageMedia/rebel-background.mp4" type="video/mp4">`
+        }
+        
+        hangarPage.classList.remove('сlosedWindow');
+
+        mainPage.classList.add('сlosedWindow');
+
+        overlayWindow.classList.remove('overlayWindowSolid')
+
+    }, 950);
+}
+
+function registerSideChange(event){
+    if (event.target.id=='rebelPic') {
+        event.target.classList.add('pickedSidePic')
+        empirePic.classList.remove('pickedSidePic')
+        document.querySelector("link[rel*='icon']").href = "resource/pageMedia/rebelLogo.png";
     }
+    if (event.target.id=='empirePic') {
+        event.target.classList.add('pickedSidePic')
+        rebelPic.classList.remove('pickedSidePic')
+        document.querySelector("link[rel*='icon']").href = "resource/pageMedia/empireLogo.png";
+    }
+}
+
+function listenersInit(){
+    sideChoosingDiv.addEventListener('click',function(event){
+        registerSideChange(event)
+    });
     
-    formBtnEnter.addEventListener('click',function(){
-        tryToEnter()
+    registrationUserBtn.addEventListener('click',function(){
+        tryToRegister()
     })
-
-
-    document.addEventListener('keydown',(event)=>{
-        if (event.key === 'Enter'&& (!(document.getElementById('mainPage').classList.value.split(' ').includes('сlosedWindow')))) {
-            tryToEnter()
-        }
+    
+    btnBack.addEventListener('click',function(){
+        loginWindowOpening()
     })
-
-
-
-    function hangarWindowOpening() {
-        const backgroundVideoPath = '';
-        const choosedSide = 'empire';
-        document.getElementById('overlayWindow').classList.add('overlayWindowSolid');
-
-        setTimeout(() => {
-            backgroundRemove();
-            const videoElement = document.getElementById('backgroundVideo');
-            console.log(choosedSide)
-            if (choosedSide=='empire'){
-                console.log('empire')
-                videoElement.innerHTML = 
-                `<source src="resource\\pageMedia\\empire-background.mp4" type="video/mp4">`
-                console.log(videoElement)
-            } else {
-                console.log('rebel')
-                videoElement.innerHTML = 
-                `<source src="resource\\pageMedia\\rebel-background.mp4" type="video/mp4">`
-                console.log(videoElement)
-            }
-            
-            document.getElementById('hangarPage').classList.remove('сlosedWindow');
-
-            document.getElementById('mainPage').classList.add('сlosedWindow');
-
-            document.getElementById('overlayWindow').classList.remove('overlayWindowSolid')
-
-        }, 950);
-    }
 
     btnStartBattle.addEventListener('click', function(){
-        document.getElementById('overlayWindow').classList.add('overlayWindowSolid');
-
+        overlayWindow.classList.add('overlayWindowSolid');
+    
         setTimeout(() => {
             
-            document.getElementById('hangarPage').classList.add('сlosedWindow');
-
-            document.getElementById('overlayWindow').classList.remove('overlayWindowSolid')
-            console.log('Loading...')
+            hangarPage.classList.add('сlosedWindow');
+    
+            overlayWindow.classList.remove('overlayWindowSolid')
             setTimeout(() => {
-                battleInit()
+                if (document.getElementById('battleWindow')){
+                    escapeWindow.classList.remove('сlosedWindow');
+                    document.getElementById('battleWindow').style.display = 'block'
+                }else {battleInit()}
+
             }, 500);
         }, 950);
     })
 
+    formBtnEnter.addEventListener('click',function(){
+        tryToEnter()
+    })
+    
+    document.addEventListener('keydown',(event)=>{
+        if (event.key === 'Enter'&& (!(mainPage.classList.value.split(' ').includes('сlosedWindow')))) {
+            tryToEnter()
+        }
+    })
 
-    // setTimeout(() => {
-    //     hangarWindowOpening()
-    // }, 200);
+    btnRegister.addEventListener('click', function (){
+        registrationWindowOpening();
+    })
+    
+    btnLeaveBattleEscape.addEventListener('click', function (){  
+        btnStartBattle.innerText = 'Продолжить бой'
+        hangarWindowOpening();
+    })
+    addEventListener('submit',function(event){
+        event.preventDefault()
+    })
 
+    window.onresize = function(){isMobileMod()}
 
-    // document.getElementById('mainPage').classList.add('сlosedWindow');
+    window.addEventListener("load", function(){
+        if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+            console.log('Вы используете мобильное устройство')
+          } else {
+            console.log('Вы используете PC либо MAC')
+        }
+        isMobileMod()
+    })
 
-    // document.getElementById('overlayWindow').classList.remove('overlayWindowSolid')
-    // setTimeout(() => {
-    //     battleInit()
-    // }, 500);
+    function isMobileMod(){
+        if(window.innerHeight<=550){
+            // mainMenuName1.classList.add('mobileMod');
+            // mainMenuName2.classList.add('mobileMod');
+            mainMenuName.classList.add('mobileMod');
+        } else {
+            // mainMenuName1.classList.remove('mobileMod');
+            // mainMenuName2.classList.remove('mobileMod');
+            mainMenuName.classList.remove('mobileMod');
+        }
+    }
+}
 
-    // setTimeout(() => {
-    //     backgroundRemove();
-    //     console.log('removed')
-    // }, 5000);
+mainContainer.mainContainerInit();
+userDataStorage.userDataCheck();
+listenersInit();
 
-
-
+mainWindowBackgroundInit()
