@@ -241,7 +241,7 @@ function battleInit() {
 
 
                 starFightersObjectList.forEach(element => {
-                    element.lookAt(playersShip.position)
+                    // element.lookAt(playersShip.position)
                     if (laserScene){
                         let distance = laserScene.position.distanceTo(element.position);
                         if (distance <=100){
