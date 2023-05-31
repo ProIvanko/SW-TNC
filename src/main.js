@@ -4,39 +4,40 @@ import {battleInit, battleWindowControl} from './battleModule.js'
 import {mainContainer} from './mainContainerInit.js';
 import {mainWindowBackgroundInit, backgroundRemove} from './mainWindowBackground.js'
 import {userDataStorage, currentUserData} from './userDataStorage.js'
+import {gamePadUnit} from './gamePadModule.js'
 
-function MVCModule(){
-/* ------- begin view -------- */
-function ModuleView() {
-    let myModuleContainer = null;
+// function MVCModule(){
+// /* ------- begin view -------- */
+// function ModuleView() {
+//     let myModuleContainer = null;
 
-    this.init = function(container) {
-    myModuleContainer = container;
-    }
-}
-/* -------- end view --------- */
-/* ------- begin model ------- */
-function ModuleModel () {
-    let myModuleView = null;
+//     this.init = function(container) {
+//     myModuleContainer = container;
+//     }
+// }
+// /* -------- end view --------- */
+// /* ------- begin model ------- */
+// function ModuleModel () {
+//     let myModuleView = null;
 
-    this.init = function(view) {
-        myModuleView = view;
-    }
-}
-/* -------- end model -------- */
+//     this.init = function(view) {
+//         myModuleView = view;
+//     }
+// }
+// /* -------- end model -------- */
 
-/* ----- begin controller ---- */
-function ModuleController () {
-    let myModuleContainer = null;
-    let myModuleModel = null;
+// /* ----- begin controller ---- */
+// function ModuleController () {
+//     let myModuleContainer = null;
+//     let myModuleModel = null;
 
-    this.init = function(container, model) {
-        myModuleContainer = container;
-        myModuleModel = model;
-    }
-};
-/* ------ end controller ----- */
-}
+//     this.init = function(container, model) {
+//         myModuleContainer = container;
+//         myModuleModel = model;
+//     }
+// };
+// /* ------ end controller ----- */
+// }
 
 function tryToEnter(){
     const login = document.getElementById('formInputLogin').value.toLowerCase().trim();
@@ -261,7 +262,11 @@ function listenersInit(){
 }
 
 mainContainer.mainContainerInit();
-userDataStorage.userDataCheck();
+
+userDataStorage.userDataRead();
+
 listenersInit();
 
 mainWindowBackgroundInit()
+
+gamePadUnit.gamepadInit();

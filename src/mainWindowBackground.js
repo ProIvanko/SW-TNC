@@ -27,6 +27,24 @@ function mainWindowBackgroundInit(){
         tryToPlayBackroundMusic()
 
         function tryToPlayBackroundMusic(){
+            if (document.getElementById('mainBackgroundWindow')) {
+                window.onload = function(){
+                    document.getElementById('mainBackgroundWindow')?backgroundMusic.play():false
+                }
+                window.onfocus = function(){
+                    document.getElementById('mainBackgroundWindow')?backgroundMusic.play():false
+                }
+                mainBackgroundWindow.addEventListener('mousemove',function(){
+                    backgroundMusic.play()?backgroundMusic.play():false
+                })
+                mainBackgroundWindow.addEventListener('click',function(){
+                    backgroundMusic.play()?backgroundMusic.play():false
+                })
+                // setInterval(() => {
+                //     backgroundMusic.play()
+                // }, 1000);
+            }
+        }
             // try {
             //     backgroundMusic.play();
             //     console.log('try to start')
@@ -37,16 +55,7 @@ function mainWindowBackgroundInit(){
             //         tryToPlayBackroundMusic()
             //     }, 1000);
             // }
-            window.onload = function(){
-                document.getElementById('mainBackgroundWindow')?backgroundMusic.play():false
-            }
-            window.onfocus = function(){
-                document.getElementById('mainBackgroundWindow')?backgroundMusic.play():false
-            }
-            mainBackgroundWindow.addEventListener('mousemove',function(){
-                backgroundMusic.play()?backgroundMusic.play():false
-            })
-        }
+
     }
 
 

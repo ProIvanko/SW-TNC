@@ -3,6 +3,7 @@ import {THREE, GLTFLoader} from './three_libs_import.js'
 import {environmentInit} from './environmentInit.js'
 import { starfightersInit } from './starfightersInit.js'
 import { FlyControls } from './three_libs_import.js'
+import{gamePadUnit} from './gamePadModule.js'
 let scene, camera, renderer, playersShip, laser, fControls, TIEBlast, animationState;
 let loader = new GLTFLoader();
 let listeners = [];
@@ -38,14 +39,15 @@ function battleInit() {
             animate(); 
             setTimeout(() => {
                 battlelistenersInit()
-            }, 200);
-        }, 200);
+            }, 400);
+        }, 0);
     });
 
     function playershipAttaching(scene){
 
         playersShip = scene.getObjectByName('TIE_Defender',true)
-
+        playersShip.laserOverHeat = false;
+        playersShip.overHeatTime = 150;
         fControls = new FlyControls( playersShip, renderer.domElement );
 
         fControls.movementSpeed = 0;
@@ -102,6 +104,12 @@ function battleInit() {
         const shipGlobalPosition = new THREE.Vector3();
 
 
+        playersShip.laserOverHeating = function(){
+            playersShip.laserOverHeat = true;
+            setTimeout(() => {
+                playersShip.laserOverHeat = false; 
+            }, playersShip.overHeatTime);
+        }
 
         playersShip.reCompute = function() {
 
@@ -144,71 +152,65 @@ function battleInit() {
             this.position.x += this.acceleration.accelerationX;
             this.position.y += this.acceleration.accelerationY;
             this.position.z += this.acceleration.accelerationZ;
-            
-
-            // starFightersObjectList.forEach(element => {
-            //     element.lookAt(playersShip.position)
-            // })
-
         }
     };
 
     function laserCreate(playersShip){
-        let laserName = `laser_${Date.now()}`;
-        let laserMaterial = new THREE.MeshBasicMaterial( { 
-            color: 0x00FF00,
-            opacity:0.9,
-            transparent: true
-        });
-        
+        if (!playersShip.laserOverHeat){
+            let laserName = `laser_${Date.now()}`;
+            let laserMaterial = new THREE.MeshBasicMaterial( { 
+                color: 0x00FF00,
+                opacity:0.9,
+                transparent: true
+            });
+            
 
-        let laserGeometry = new THREE.SphereGeometry( 10, 10, 16);
+            let laserGeometry = new THREE.SphereGeometry( 10, 10, 16);
 
-        let newLaser = new THREE.Mesh(laserGeometry, laserMaterial);
+            let newLaser = new THREE.Mesh(laserGeometry, laserMaterial);
 
-        newLaser.rotation.x = 90/180*Math.PI
-        newLaser.rotation.z = 0/180*Math.PI-playersShip.rotation.y
-
-
-
-        const laserVector = new THREE.Vector3();  
-        newLaser.laserVector = playersShip.vectorShip;
-        newLaser.name = laserName;
-        newLaser.lifeTime = 1000;
-        newLaser.position.x = playersShip.position.x+newLaser.laserVector.x*(10+playersShip.acceleration.speed);
-        newLaser.position.y = playersShip.position.y+newLaser.laserVector.y*(10+playersShip.acceleration.speed);
-        newLaser.position.z = playersShip.position.z+newLaser.laserVector.z*(10+playersShip.acceleration.speed);
-
-        let starfighter2 = scene.getObjectByProperty('type','starfighter2')
-        
+            newLaser.rotation.x = 90/180*Math.PI
+            newLaser.rotation.z = 0/180*Math.PI-playersShip.rotation.y
 
 
-        laser.laserList[laserName] = {
-            positionX : newLaser.position.x,
-            positionY : newLaser.position.y,
-            positionZ : newLaser.position.z,
 
-            vectorX: newLaser.laserVector.x,
-            vectorY: newLaser.laserVector.y,
-            vectorZ: newLaser.laserVector.z,
+            const laserVector = new THREE.Vector3();  
+            newLaser.laserVector = playersShip.vectorShip;
+            newLaser.name = laserName;
+            newLaser.lifeTime = 1000;
+            newLaser.position.x = playersShip.position.x+newLaser.laserVector.x*(10+playersShip.acceleration.speed);
+            newLaser.position.y = playersShip.position.y+newLaser.laserVector.y*(10+playersShip.acceleration.speed);
+            newLaser.position.z = playersShip.position.z+newLaser.laserVector.z*(10+playersShip.acceleration.speed);
 
-            collisionStarfighter2 : 0,
-        };
-        laser.laserList[laserName].startSpeed = playersShip.acceleration.destSpeed;
-        scene.add(newLaser);
-        TIEBlast.pause();
-        TIEBlast.currentTime = 0;
-        TIEBlast.play();
+            let starfighter2 = scene.getObjectByProperty('type','starfighter2')
 
-        setTimeout(() => {
-            scene.remove(newLaser)
-            newLaser = null;
-            delete laser.laserList[laserName]
-        }, newLaser.lifeTime);
+            laser.laserList[laserName] = {
+                positionX : newLaser.position.x,
+                positionY : newLaser.position.y,
+                positionZ : newLaser.position.z,
 
+                vectorX: newLaser.laserVector.x,
+                vectorY: newLaser.laserVector.y,
+                vectorZ: newLaser.laserVector.z,
+
+                collisionStarfighter2 : 0,
+            };
+            laser.laserList[laserName].startSpeed = playersShip.acceleration.destSpeed;
+            scene.add(newLaser);
+            TIEBlast.pause();
+            TIEBlast.currentTime = 0;
+            TIEBlast.play();
+            playersShip.laserOverHeating()
+            setTimeout(() => {
+                scene.remove(newLaser)
+                newLaser = null;
+                delete laser.laserList[laserName]
+            }, newLaser.lifeTime);
+        }
     }
 
     function laserBehavior(scene){
+
         laser = {};
         laser.speed = 25;
         laser.laserList = {};
@@ -259,40 +261,69 @@ function battleInit() {
     }
 
     function animate(){
-
             if(animationState == 'run'){
-                fControls.update(1)
-                let  shipAcc = playersShip.acceleration;
-                playersShip.reCompute();
-                renderer.render(scene,camera);
-                laser.laserRedraw()
+                animateContainer()
             } else if (animationState == 'pause'){
-                TIEBlast.pause();
-                let escapeWindow = document.getElementById('escapeWindow');
-                // let btnOptions = document.getElementById('btnOptionsEscape');
-                // let btnResume = document.getElementById('btnResumeBattleEscape');
-                // let btnLeave = document.getElementById('btnLeaveBattleEscape');
-                escapeWindow.classList.remove('сlosedWindow');
-                escapeWindow.addEventListener('click', function (event){
-                    if (!event.repeat) {
-                        switch (event.target.id){
-                            // case 'btnOptionsEscape':console.log('Option window')
-    
-                            case 'btnLeaveBattleEscape':{
-                                battleWindowControl.battleStop();
-                                break;
-                            }
-                            case 'btnResumeBattleEscape':{
-                                escapeWindow.classList.add('сlosedWindow');
-                                battleWindowControl.battleResume();
-                                break;
-                            }
-                        }
-                    }
-                })
+                escapeWindowOpening()
             }
-        
         requestAnimationFrame(animate)
+    }
+
+    function animateContainer(){
+        fControls.update(1)
+        playersShip.reCompute();
+        renderer.render(scene,camera);
+        laser.laserRedraw();
+
+        if(gamePadUnit.gamepad.id){
+            gamepadReactions(gamePadUnit.gamepad)
+        }
+        
+    }
+
+    function gamepadReactions(gamepad){
+        if (gamepad.buttons[2].pressed){
+            laserCreate(playersShip)
+        }
+        if (gamepad.buttons[7].pressed && !gamepad.buttons[6].pressed){
+            playersShip.acceleration.destSpeed = playersShip.acceleration.maxSpeed;
+        }
+        if (gamepad.buttons[6].pressed && !gamepad.buttons[7].pressed){
+            playersShip.acceleration.destSpeed = 0;
+        }
+        if (!gamepad.buttons[6].pressed && !gamepad.buttons[7].pressed){
+            playersShip.acceleration.destSpeed = playersShip.acceleration.normalSpeed;
+        }
+
+    };
+        
+
+    
+
+    function escapeWindowOpening(){
+        TIEBlast.pause();
+        let escapeWindow = document.getElementById('escapeWindow');
+        // let btnOptions = document.getElementById('btnOptionsEscape');
+        // let btnResume = document.getElementById('btnResumeBattleEscape');
+        // let btnLeave = document.getElementById('btnLeaveBattleEscape');
+        escapeWindow.classList.remove('сlosedWindow');
+        escapeWindow.addEventListener('click', function (event){
+            if (!event.repeat) {
+                switch (event.target.id){
+                    // case 'btnOptionsEscape':console.log('Option window')
+
+                    case 'btnLeaveBattleEscape':{
+                        battleWindowControl.battleStop();
+                        break;
+                    }
+                    case 'btnResumeBattleEscape':{
+                        escapeWindow.classList.add('сlosedWindow');
+                        battleWindowControl.battleResume();
+                        break;
+                    }
+                }
+            }
+        })
     }
 
     function battlelistenersInit(){
