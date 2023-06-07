@@ -1,20 +1,20 @@
-// import { OrbitControls } from "https://unpkg.com/three@0.126/examples/jsm/controls/OrbitControls.js";
 import {THREE, GLTFLoader} from './three_libs_import.js'
+import {TextGeometry, FontLoader, CSS2DRenderer,CSS2DObject} from "./three_libs_import.js";
 import {environmentInit} from './environmentInit.js'
-import { starfightersInit } from './starfightersInit.js'
+import { enemyAI, ailaser } from './starfightersInit.js'
 import { FlyControls } from './three_libs_import.js'
 import{gamePadUnit} from './gamePadModule.js'
 import{userInterFace}from './userInterFace.js'
+import {options} from './options.js'
+import {audioManager} from './audioManager.js'
 
-let scene, camera, renderer, playersShip, laser, fControls, TIEBlast, animationState;
+let scene, camera, renderer, playersShip, laser, fControls, TIEBlast, animationState, labelRenderer,target;
 let loader = new GLTFLoader();
 
 function battleInit() {
+    userInterFace.userInterfaceInit();
     animationState = 'run';
-    TIEBlast = new Audio();
-    TIEBlast.preload = 'auto';
-    TIEBlast.volume = 0.1;
-    TIEBlast.src = 'resource/3DModels/TIE-Defender/blast.mp3';
+    TIEBlast = audioManager.audioList.TIEBlast
 
     scene = new THREE.Scene();
     scene.background = new THREE.Color(0xdddddd);
@@ -22,14 +22,24 @@ function battleInit() {
     renderer = new THREE.WebGLRenderer({antialias:true});
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.domElement.id = 'battleWindow';
+    renderer.domElement.style.zIndex = -2;
     document.body.appendChild(renderer.domElement);
 
+    labelRenderer = new CSS2DRenderer();
+    labelRenderer.setSize( window.innerWidth, window.innerHeight );
+    labelRenderer.domElement.style.position = 'absolute';
+    labelRenderer.domElement.style.top = '0px';
+    labelRenderer.domElement.style.top = '0px';
+    labelRenderer.domElement.classList.add('hiddenCursor');
+    labelRenderer.domElement.id = 'css2RenderText';
+    document.body.appendChild( labelRenderer.domElement );
+
     environmentInit(scene, loader)
-    starfightersInit(scene, loader)
+    enemyAI.enemyInit(scene, loader)
 
     loader.load('resource/3DModels/TIE-Defender/scene.gltf', function(gltf){
         let starfighter = gltf.scene
-        starfighter.scale.set(10,10,10);
+        starfighter.scale.set(30,30,30);
         starfighter.name = 'TIE_Defender';
         starfighter.type = 'starfighter'
         scene.add(gltf.scene);
@@ -48,19 +58,48 @@ function battleInit() {
 
         playersShip = scene.getObjectByName('TIE_Defender',true)
         playersShip.laserOverHeat = false;
-        playersShip.overHeatTime = 150;
-        fControls = new FlyControls( playersShip, renderer.domElement );
+        playersShip.healthPoint = 200;
+        playersShip.overHeatTime = 50;
+        fControls = new FlyControls( playersShip, labelRenderer.domElement );
 
         fControls.movementSpeed = 0;
-        fControls.domElement = renderer.domElement;
+        fControls.domElement = labelRenderer.domElement;
         fControls.rollSpeed = Math.PI / 180;
         fControls.autoForward = false;
         fControls.dragToLook = false;
 
+        const targetDiv = document.createElement( 'div' );
+        targetDiv.style.zIndex = 2;
+        targetDiv.className = 'css2Text';
+        targetDiv.textContent = '- -';
+        targetDiv.style.backgroundColor = 'transparent';
+        let targetLabel = new CSS2DObject( targetDiv );
+        targetLabel.position.set( 0, 0, 400 );
+        targetLabel.name = 'testing_text1'
+        playersShip.add( targetLabel);
 
+        const targetDiv2 = document.createElement( 'div' );
+        targetDiv2.style.zIndex = 2;
+        targetDiv2.className = 'css2Text2';
+        targetDiv2.textContent = '-    -';
+        targetDiv2.style.backgroundColor = 'transparent';
+        let targetLabel2 = new CSS2DObject( targetDiv2);
+        targetLabel2.position.set( 0, 0, 100 );
+        targetLabel2.name = 'testing_text2'
+        playersShip.add( targetLabel2 );
+
+        const targetDiv3 = document.createElement( 'div' );
+        targetDiv3.style.zIndex = 2;
+        targetDiv3.className = 'css2Text3';
+        targetDiv3.textContent = '|';
+        targetDiv3.style.backgroundColor = 'transparent';
+        let targetLabel3 = new CSS2DObject( targetDiv3);
+        targetLabel3.position.set( 0, 0, 50 );
+        targetLabel3.name = 'testing_text3'
+        playersShip.add( targetLabel3 );
 
         playersShip.acceleration = {
-            maxSpeed : 15,//100,
+            maxSpeed : 5,//100,
             destSpeed : 0,
             actSpeed : 0,
             normalSpeed: 0,//20,
@@ -75,30 +114,20 @@ function battleInit() {
         };
         playersShip.rotation.y = 90/180*Math.PI;
         playersShip.attach(camera);
-        camera.position.y = 20;
-        camera.position.z = -40;
+        camera.position.y = 10;
+        camera.position.z = -20;
         camera.rotation.y = 180/180*Math.PI;
-        camera.rotation.x = 15/180*Math.PI;
+        camera.rotation.x = 0/180*Math.PI;
 
-        let shipRotationTargetGlobalPosition = new THREE.Vector3();
-        playersShip.rotationVectorShip = new THREE.Euler();
-
-        let starfightersList = ['starfighter1', 'starfighter2', 'starfighter3', 'starfighter4', 'starfighter5', 'starfighter6', 'starfighter7', 'starfighter8', 'starfighter9', 'starfighter10']
-        let starFightersObjectList = [];
-
-        starfightersList.forEach(element => {
-            let sfo = scene.getObjectByProperty('type', element);
-            starFightersObjectList.push(sfo)
-        });
-
-
-        const geometryTarget = new THREE.SphereGeometry( 5, 32, 16 );
-        const materialTarget = new THREE.MeshBasicMaterial( { color: 0xFF0000 } ); 
+        const geometryTarget = new THREE.SphereGeometry( .1, 32, 16 );
+        const materialTarget = new THREE.MeshBasicMaterial( {} ); 
         const shipTarget = new THREE.Mesh(geometryTarget, materialTarget);
         scene.add(shipTarget)
         playersShip.attach(shipTarget)
         shipTarget.position.z = 45
 
+
+        
         const sTPos = new THREE.Vector3();
         playersShip.vectorShip = new THREE.Vector3();
         let vectorShip = playersShip.vectorShip;
@@ -113,7 +142,9 @@ function battleInit() {
         }
 
         playersShip.reCompute = function() {
-
+            let healthBar = document.getElementById('health-fill')
+            healthBar.style.width = `${playersShip.healthPoint/2}%`;
+            // console.log(healthBar.style.width)
             shipGlobalPosition.copy(playersShip.position);
 
             shipTarget.getWorldPosition(sTPos);
@@ -154,6 +185,18 @@ function battleInit() {
             this.position.y += this.acceleration.accelerationY;
             this.position.z += this.acceleration.accelerationZ;
         }
+
+        playersShip.death = {
+            isDead: function(){
+                playersShip.position.x = -50000;
+                playersShip.position.y = -8000;
+                playersShip.position.z = 3000;
+                playersShip.healthPoint = 200;
+            }
+        }
+
+
+
     };
 
     function laserCreate(playersShip){
@@ -164,24 +207,35 @@ function battleInit() {
                 opacity:0.9,
                 transparent: true
             });
-            
+            class CustomSinCurve extends THREE.Curve {
+                constructor( scale = 1 ) {
+                    super();
+                    this.scale = scale;
+                }
+                getPoint( t, optionalTarget = new THREE.Vector3() ) {
+                    const tx = 0;
+                    const ty = 0;
+                    const tz = t;
+                    return optionalTarget.set( tx, ty, tz ).multiplyScalar( this.scale );
+                }
+            }
+            const path = new CustomSinCurve( 250 );
 
-            let laserGeometry = new THREE.SphereGeometry( 10, 10, 16);
+            let laserGeometry = new THREE.TubeGeometry(path, 8, 15, 8, true);
 
             let newLaser = new THREE.Mesh(laserGeometry, laserMaterial);
 
-            newLaser.rotation.x = 90/180*Math.PI
-            newLaser.rotation.z = 0/180*Math.PI-playersShip.rotation.y
-
-
+            newLaser.rotation.x = playersShip.rotation.x
+            newLaser.rotation.z = playersShip.rotation.z
+            newLaser.rotation.y = playersShip.rotation.y
 
             const laserVector = new THREE.Vector3();  
             newLaser.laserVector = playersShip.vectorShip;
             newLaser.name = laserName;
             newLaser.lifeTime = 1000;
-            newLaser.position.x = playersShip.position.x+newLaser.laserVector.x*(10+playersShip.acceleration.speed);
-            newLaser.position.y = playersShip.position.y+newLaser.laserVector.y*(10+playersShip.acceleration.speed);
-            newLaser.position.z = playersShip.position.z+newLaser.laserVector.z*(10+playersShip.acceleration.speed);
+            newLaser.position.x = playersShip.position.x+newLaser.laserVector.x*(1+playersShip.acceleration.speed);
+            newLaser.position.y = playersShip.position.y+newLaser.laserVector.y*(1+playersShip.acceleration.speed);
+            newLaser.position.z = playersShip.position.z+newLaser.laserVector.z*(1+playersShip.acceleration.speed);
 
             let starfighter2 = scene.getObjectByProperty('type','starfighter2')
 
@@ -213,14 +267,8 @@ function battleInit() {
     function laserBehavior(scene){
 
         laser = {};
-        laser.speed = 25;
+        laser.speed = 10;
         laser.laserList = {};
-        let starfightersList = ['starfighter1', 'starfighter2', 'starfighter3', 'starfighter4', 'starfighter5', 'starfighter6', 'starfighter7', 'starfighter8', 'starfighter9', 'starfighter10']
-        let starFightersObjectList = []
-        starfightersList.forEach(element => {
-            let sfo = scene.getObjectByProperty('type', element);
-            starFightersObjectList.push(sfo)
-        });
 
         laser.laserRedraw = function(){
             let laserIDs = Object.keys(this.laserList)
@@ -239,12 +287,10 @@ function battleInit() {
                 laserScene.position.y = this.laserList[laserID].positionY
                 laserScene.position.z = this.laserList[laserID].positionZ
 
-
-                starFightersObjectList.forEach(element => {
-                    // element.lookAt(playersShip.position)
-                    if (laserScene){
+                enemyAI.starFightersObjectList.forEach(element => {
+                    if (laserScene != undefined){
                         let distance = laserScene.position.distanceTo(element.position);
-                        if (distance <=100){
+                        if (distance <=200){
                             console.log(`hit ${element.type}`)
                             element.position.z = 10000000
                             laserScene.position.z = -1000000
@@ -256,6 +302,7 @@ function battleInit() {
                             delete this.laserList[laserID]
                         }
                     }
+
                 });
             });
         };
@@ -271,11 +318,21 @@ function battleInit() {
     }
 
     function animateContainer(){
-        
+        if (playersShip.healthPoint<=1){
+            playersShip.death.isDead()
+        }
+        enemyAI.starFightersObjectList.forEach(element => {
+            element.reCompute(scene)
+        });
+        ailaser.laserRedraw()
+        labelRenderer.render(scene, camera);
         fControls.update(1)
         playersShip.reCompute();
         renderer.render(scene,camera);
         laser.laserRedraw();
+
+        // console.log('x:'+Math.round(playersShip.position.x) + '\n' + 'y:'+Math.round(playersShip.position.y) + '\n' + 'z:'+Math.round(playersShip.position.z) + '\n')
+        // console.log(playersShip.healthPoint)
 
         if(gamePadUnit.gamepad.id){
             gamepadReactions(gamePadUnit.gamepad)
@@ -299,15 +356,10 @@ function battleInit() {
 
     };
         
-
-    
-
     function escapeWindowOpening(){
         TIEBlast.pause();
+        document.getElementById('css2RenderText').classList.remove('hiddenCursor');
         let escapeWindow = document.getElementById('escapeWindow');
-        // let btnOptions = document.getElementById('btnOptionsEscape');
-        // let btnResume = document.getElementById('btnResumeBattleEscape');
-        // let btnLeave = document.getElementById('btnLeaveBattleEscape');
         escapeWindow.classList.remove('сlosedWindow');
         escapeWindow.addEventListener('click', function (event){
             if (!event.repeat) {
@@ -315,11 +367,13 @@ function battleInit() {
                     // case 'btnOptionsEscape':console.log('Option window')
 
                     case 'btnLeaveBattleEscape':{
+                        document.getElementById('health-bar').classList.add('closedWindow')
                         battleWindowControl.battleStop();
                         break;
                     }
                     case 'btnResumeBattleEscape':{
                         escapeWindow.classList.add('сlosedWindow');
+                        document.getElementById('css2RenderText').classList.add('hiddenCursor');
                         battleWindowControl.battleResume();
                         break;
                     }
@@ -330,6 +384,7 @@ function battleInit() {
 
     function battlelistenersInit(){
         let canvasWindow = document.getElementById('battleWindow')
+
         addEventListener('keydown',function(event){
             if (!event.repeat) {
                 let shipAcc = playersShip.acceleration;
@@ -344,46 +399,7 @@ function battleInit() {
                         shipAcc.speed = 0;  
                         break
                     }
-                    // case ('a'): {
-                    //     shipAcc.rotAccelerationY = 2/180*Math.PI;    
-                    //     break
-                    // }
-                    // case ('d'): {
-                    //     shipAcc.rotAccelerationY = -2/180*Math.PI;    
-                    //     break
-                    // }
-                    // case ('e'): {
-                    //     shipAcc.rotAccelerationZ = 2/180*Math.PI;    
-                    //     break
-                    // }
-                    // case ('q'): {
-                    //     shipAcc.rotAccelerationZ = -2/180*Math.PI;    
-                    //     break
-                    // }
-                    // case ('z'): {
-                    //     shipAcc.accelerationY = 25;       
-                    //     break
-                    // }
-                    // case ('c'): {
-                    //     shipAcc.accelerationY = -25;   
-                    //     break
-                    // }
-                    // case ('z'): {
-                    //     // shipAcc.rotAccelerationX += 1/180*Math.PI;   
-                    //     shipAcc.accelerationY = shipAcc.acceleration.maxSpeed;    
-                    //     break
-                    // }
-                    // case ('c'): {
-                    //     // shipAcc.rotAccelerationX -= 1/180*Math.PI;    
-                    //     shipAcc.accelerationY = -shipAcc.acceleration.maxSpeed;    
-                    //     break
-                    // }
-                    // case ('space'): {
-                    //     console.log('SpaceBar') 
-                    //     break
-                    // }
                 }
-                // console.log(event.key) 
             }
         })
         
@@ -399,36 +415,10 @@ function battleInit() {
                     shipAcc.destSpeed = 0;
                     break
                 }
-                // case ('a'): {
-                //     shipAcc.rotAccelerationY = 0;    
-                //     break
-                // }
-                // case ('d'): {
-                //     shipAcc.rotAccelerationY = 0;    
-                //     break
-                // }
-                // case ('e'): {
-                //     shipAcc.rotAccelerationZ = 0;    
-                //     break
-                // }
-                // case ('q'): {
-                //     shipAcc.rotAccelerationZ = 0;    
-                //     break
-                // }
-                // case ('z'): {
-                //     // shipAcc.rotAccelerationX = 0/180*Math.PI;   
-                //     shipAcc.accelerationY = 0;    
-                //     break
-                // }
-                // case ('c'): {
-                //     // shipAcc.rotAccelerationX = 0/180*Math.PI;    
-                //     shipAcc.accelerationY = 0;    
-                //     break
-                // }
             }
         })
         
-        canvasWindow.addEventListener('click', function(event){
+        labelRenderer.domElement.addEventListener('click', function(event){
             if (document.getElementById('escapeWindow').classList.contains('сlosedWindow')){
                 laserCreate(playersShip)
             };
@@ -442,23 +432,17 @@ function battleInit() {
                 animationState = 'pause'
             }
         })
-        // listeners = [listener1, listener2, listener3, listener4]
     }
 
     function onWindowResize(){
         camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
         renderer.setSize( window.innerWidth, window.innerHeight );
+        labelRenderer.setSize( window.innerWidth, window.innerHeight );
     }
 }
 
 const battleWindowControl = {
-    // battleOver : function(){
-    //     let canv = document.getElementById('battleWindow');
-    //     canv.remove()
-    //     canv = null
-    //     scene, camera, renderer, playersShip, laser, fControls, TIEBlast,animationState = null
-    // },
 
     battleStop : function(){
         animationState = 'stop';
@@ -473,4 +457,4 @@ const battleWindowControl = {
     },
 }
 
-export {battleInit, battleWindowControl}
+export {battleInit, battleWindowControl, scene}

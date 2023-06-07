@@ -41,6 +41,10 @@ const mainContainer = {
                 class="btnRegister registrationBtn formElement" 
                 id="btnRegister" 
             >Регистрация</button>
+            <button
+                class="btnOptionsMainWindow formElement" 
+                id="btnOptionsMainWindow" 
+            >Настройки</button>
         </div>
         <div class="backgroundOpacity"></div>
 
@@ -102,35 +106,51 @@ const mainContainer = {
 <div class="overlayWindowOpaque" id="overlayWindow">
 </div>
 
-<div id="hangarPage" class="hangarPage сlosedWindow hangarEmpire" >
-    <video 
+    <div id="welcomeWindow" class="welcomeWindow welcomeWindowHidden сlosedWindow">
+        <h3>Welcome</h1>
+        <h1 id="welcomeWindowLogin">Mr. Smith</h2>
+        <img class="welcomePic welcomeWindowHidden" 
+        id="welcomePic"
+        src="resource/pageMedia/empireLogo.png" alt="welcomePic" >
+    </div>
+    
+    <div id="hangarPage" class="hangarPage сlosedWindow hangarEmpire">
+        <video 
         id="backgroundVideo" 
         autoplay 
         loop 
         muted>
-    </video>
+        </video>
 
-    <button 
-        class="formBtnEnter loginBtn formElement" 
-        id="btnGalxyMap" 
-    >Галактическая карта</button>
+        <div id="hangarUserInfo" class="hangarUserInfo hangarPageElement">
 
-    <button 
-        class="formBtnEnter loginBtn formElement" 
-        id="btnArsenal"
-    >Арсенал</button>
+            <h1 id="hangarUserLogin" class="hangarUserLogin">Player</h1>
+            <div id="hangarStatisticsContent" class="hangarStatisticsContent ">statistics
+            </div>
+        </div>
 
-    <button 
-        class="formBtnEnter loginBtn formElement" 
-        id="btnOptions" 
-    >Настройки</button>
-
-    <button 
-        class="formBtnEnter loginBtn formElement" 
-        id="btnStartBattle" 
-    >Начать бой</button>
-
-</div>
+        <div id="hangarMenu" class="hangarMenu hangarPageElement">
+                <button 
+                class="formBtnEnter loginBtn formElement" 
+                id="btnGalaxyMap" 
+            >Галактическая карта</button>
+        
+            <button 
+                class="formBtnEnter loginBtn formElement" 
+                id="btnArsenal"
+            >Арсенал</button>
+        
+            <button 
+                class="formBtnEnter loginBtn formElement" 
+                id="btnOptions" 
+            >Настройки</button>
+        
+            <button 
+                class="formBtnEnter loginBtn formElement" 
+                id="btnStartBattle" 
+            >Начать бой</button>         
+        </div>
+    </div>
 
 <div id="escapeWindow" class="escapeWindow сlosedWindow">
     <label class="escapeWindowElement escapeWindowText" 
@@ -150,6 +170,10 @@ const mainContainer = {
         class="escapeWindowElement " 
         id="btnResumeBattleEscape" 
     >Продолжить бой</button>
+</div>
+<div class="health-bar сlosedWindow" id="health-bar">
+    <div class="health-fill" id="health-fill">
+</div>
 </div>
 
 

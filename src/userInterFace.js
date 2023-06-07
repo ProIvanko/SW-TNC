@@ -35,21 +35,14 @@ const userInterFace = {
 
     },
 
-    css2textLoader:function(scene, renderer, camera){
-        // // let mWay = scene.getObjectByName('milkyway');
-        // const earthMassDiv = document.createElement( 'div' );
-        // earthMassDiv.className = 'label';
-        // earthMassDiv.textContent = '5.97237e24 kg';
-        // earthMassDiv.style.backgroundColor = 'transparent';
+    userInterfaceInit:function(){
+        // let target = document.createElement('img');
+        // target.src = './resource/interfaceRes/target.png';
+        // target.classList = 'interfaceTarget';
+        // target.id = 'interfaceTarget';
+        // document.body.append(target)
 
-        // const earthMassLabel = new CSS2DObject( earthMassDiv );
-        // earthMassLabel.position.set( 100, 0, 0 );
-        // scene.add( earthMassLabel );
-        // earthMassLabel.layers.set( 1 );
-        // camera.position.z=100
-        // renderer.render( scene, camera );
-
+        document.getElementById('health-bar').classList.remove('сlosedWindow')
     }
-        
 }
 export{userInterFace}

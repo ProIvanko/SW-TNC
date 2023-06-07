@@ -1,11 +1,13 @@
 @import url('https://fonts.cdnfonts.com/css/star-wars');
+@import url('https://fonts.googleapis.com/css?family=Fira Sans');
 
 body { 
     margin: 0; 
     color: gold;
 	font-size: 20px;
 	background-color: black;
-	
+	font-family: 'Star Wars', 'Fira-Sans';
+	z-index: 5;
 }
 
 .loginWindow, .registrationWindow {
@@ -29,6 +31,7 @@ body {
 	right: 0;
 	top: 0;
 	bottom: 0;
+	z-index: 5;
 }
 
 .mainMenuName{
@@ -36,6 +39,7 @@ body {
 	text-align: center;
 	font-size: 40px;
 	/* font-size: calc(1em + 2vw);  */
+	z-index: 5;
 }
 
 .formLogin {
@@ -44,6 +48,7 @@ body {
 	justify-content:center; */
 	display: block;
 	text-align: center;
+	z-index: 5;
 }
 
 .formWrong::placeholder {
@@ -62,7 +67,7 @@ body {
 } 
 
 .formBtnEnter {
-	height: 60px;
+	height: 40px;
 }
 
 .btnRegister {
@@ -111,7 +116,7 @@ body {
 	right: 0px;
 	top: 0px;
 	display: block;
-	transition:all 1s ease-out;
+	transition:all .5s ease-out;
 	background-color: black;
 	opacity: 0;
 	z-index: -1;
@@ -124,27 +129,59 @@ body {
 	z-index: 100;
 }
 
-.hangarPage {
-	width: 250px;
-	display: block;
-	height: auto;
-	padding: 10px;
+
+/* .hangarRebel{
+	background: rgba(255,0,0, 0.2);
+}
+.hangarEmpire{
+	background: rgba(0,0,255, 0.2);
+} */
+
+.hangarUserInfo{
+	float: left;
+	height: 280px;
+	width: 320px;
+	padding: 5px;
+	margin: 5px;
+	border-style: double;
+	border-width: 5px;
+	border-radius: 5px;
 	text-align: left;
-	margin: 20px;
+	padding-left: 20px;
+	z-index: 5;
+}
+.hangarMenu {
+	float: left;
+	width: 210px;
+	height: 280px;
+	padding: 5px;
+	margin: 5px;
 	border-style: double;
 	border-width: 5px;
 	border-radius: 5px;
 	text-align: center;
-	text-align: bottom;
+	z-index: 5;
 }
 
-/* .hangarRebel{
-	background-color: red;
+.hangarUserLogin{
+	margin-bottom:15px;
+	padding: 0;
 }
-.hangarEmpire{
-	background-color: darkblue;
 
-} */
+.hangarStatisticsContent{
+	font-family: 'Fira Sans';
+}
+
+.hangarPageRebel{
+	background: rgba(255,0,0, 0.4);
+}
+.hangarPageEmpire{
+	background: rgba(0,0,255, 0.4);
+}
+
+
+
+
 
 .escapeWindow {
 	width: 250px;
@@ -155,11 +192,13 @@ body {
 	position: absolute;
 	left: calc(50vw - 125px);
 	margin-top: 25vh;
+	z-index: 5;
 }
 
 .escapeWindowText{
 	font-family: 'Star Wars', sans-serif;
 	font-size: 20px;
+
 }
 
 .escapeWindowElement {
@@ -168,16 +207,13 @@ body {
 	margin: 5px;
 	border-radius: 5px;
 	border-width: 1px;
-	left: calc(50vw - 125px);
 } 
 
 .escapeWindowElement:hover{
 	box-shadow:0 0 20px aqua;
 }
 
-.сlosedWindow {
-	display: none;
-}
+
 
 .mobileMod{
 	width: 100px;
@@ -185,18 +221,148 @@ body {
 	position: absolute;
 	left: 0;
 	margin: 5px;
-	display: block;
 }
-.statisticsWindow{
-	width: 250px;
-	height: 400px;
 
-	display: flex;
-	padding: 10px;
-	text-align: left;
-	margin: 20px;
+.welcomeWindow{
+	font-size: 20px;
+	width: 320px;
+	position: relative;
+	left:auto;
+	margin: auto;
+	height: auto;
+	text-align: center;
+	z-index: 200;
+	transition:all .5s ease-out;
+}
+
+.welcomePic{
+	width: 200px;
+	transition:all .5s ease-out;
+}
+
+.welcomeWindowHidden {
+	transition:all 1s ease-out;
+	z-index: -100;
+	opacity: 0%;
+}
+
+.optionsWindow{
+	width: 280px;
+	padding-top: 5px;
+	padding-left: 10px;
 	border-style: double;
 	border-width: 5px;
-	border-radius: 5px;
+	text-align: left;
+	position: fixed;
+	left: calc(50vw - 145px);
+	top: 30vh;
+	background-color: rgba(0,0,0, 0.6);
+	z-index: 200;
+}
+
+.sliderOption{
+	margin: 5px;
+}
+
+.btnOptionsClose{
+	width: 200px;
+	height: 30px;
 	text-align: center;
+	display: block;
+	position: relative;
+
+	margin-bottom: 5px;
+	border-radius: 5px;
+	border-width: 1px;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.overlayWindowOption {
+	opacity: 0.4;
+	transition:all .1s ease-out;
+	z-index: 100;
+}
+
+
+
+.css2Text{
+	font-family: 'Fira Sans';
+	font-size: 40px;
+	color: red;
+	z-index: 1;
+
+}
+
+#css2RenderText{
+	font-family: 'Fira Sans';
+	font-size: 40px;
+	color: red;
+	z-index: 1;
+	/* cursor: none; */
+}
+
+.hiddenCursor{
+	cursor: none;
+}
+
+/* #battleWindow{
+} */
+
+.css2Text2{
+	font-size: 80px;
+	color: red;
+}
+.css2DistanceText{
+	font-size: 14px;
+	font-weight: bold;
+	color: red;
+}
+
+
+.interfaceTarget{
+	width:100px;
+	position: absolute;
+	left: calc(50vw - 50px);
+	moz-user-select: none;
+	-webkit-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+	top: calc(52vh - 50px);
+}
+
+  
+  @import url("https://fonts.googleapis.com/css2?family=Heebo:wght@100;500&display=swap");
+
+  
+  .health-bar {
+	position: absolute;
+	left: calc(50vw - 100px);
+	bottom: 5vh;
+	height: 20px;
+	width: 200px;
+	background: white;
+	border-radius: 25px;
+	border: 2px solid white;
+	background-color: gray;
+	box-shadow: 0 0 32px blue;
+
+  }
+  
+  .health-fill {
+	height: 20px;
+	animation: progress-forward 3s infinite;
+	background: rgb(34, 195, 82);
+	background: linear-gradient(
+	  90deg,
+	  rgba(34, 193, 195, 1) 0%,
+	  rgb(45, 253, 45) 100%
+	);
+	border-radius: 15px;
+  }
+  
+
+
+  .сlosedWindow {
+	display: none;
 }

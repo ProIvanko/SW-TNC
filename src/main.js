@@ -5,6 +5,10 @@ import {mainContainer} from './mainContainerInit.js';
 import {mainWindowBackgroundInit, backgroundRemove} from './mainWindowBackground.js'
 import {userDataStorage, currentUserData} from './userDataStorage.js'
 import {gamePadUnit} from './gamePadModule.js'
+import {options} from './options.js'
+import {audioManager} from './audioManager.js'
+
+userDataStorage.firebaseInit()
 
 // function MVCModule(){
 // /* ------- begin view -------- */
@@ -52,7 +56,7 @@ function tryToEnter(){
             // passwordField.value = '';
             const userData = userDataStorage.userData[login.toLowerCase()]
             currentUserData.currentUserInit(userData);
-            hangarWindowOpening();
+            helloUserWindow()
         } else {
             passwordField.value = '';
             passwordField.placeholder = 'Неверный пароль';
@@ -141,17 +145,55 @@ function registrationWindowOpening(){
     registrationWindow.classList.remove('сlosedWindow');
 }
 
+function helloUserWindow(){
+    const backgroundVideoPath = '';
+    const choosedSide = currentUserData.userSide;
+    overlayWindow.classList.add('overlayWindowSolid');
+    welcomeWindow.classList.remove('сlosedWindow')
+
+    hangarUserLogin.innerHTML = currentUserData.userLogin
+    hangarStatisticsContent.innerHTML = currentUserData.parsedUserStatistics;
+
+    welcomeWindowLogin.innerText = currentUserData.userLogin
+    choosedSide=='empire'?welcomePic.src = 'resource/pageMedia/empireLogo.png':welcomePic.src = 'resource/pageMedia/rebelLogo.png'
+
+    setTimeout(() => {
+
+        welcomeWindow.classList.remove('welcomeWindowHidden');
+        setTimeout(() => {
+            document.getElementById('mainBackgroundWindow')?backgroundRemove():false;
+            welcomePic.classList.remove('welcomeWindowHidden');
+            setTimeout(() => {
+                welcomeWindow.classList.add('welcomeWindowHidden', 'сlosedWindow');
+                hangarWindowOpening();
+            }, 1000);
+        }, 500);
+    }, 500);
+
+
+
+    // hangarWindowOpening()
+}
+
 function hangarWindowOpening() {
     const backgroundVideoPath = '';
     const choosedSide = currentUserData.userSide;
     overlayWindow.classList.add('overlayWindowSolid');
-
     setTimeout(() => {
+
         escapeWindow.classList.add('сlosedWindow');
 
         document.getElementById('battleWindow')?document.getElementById('battleWindow').style.display = 'none':false;
 
         document.getElementById('mainBackgroundWindow')?backgroundRemove():false;
+        if(choosedSide=='empire'){
+            hangarUserInfo.classList.add('hangarPageEmpire')
+            hangarMenu.classList.add('hangarPageEmpire')
+        } else {
+            hangarUserInfo.classList.add('hangarPageRebel')
+            hangarMenu.classList.add('hangarPageRebel')
+        }
+
         const videoElement = document.getElementById('backgroundVideo');
         if (choosedSide=='empire'){
             videoElement.innerHTML = 
@@ -184,7 +226,20 @@ function registerSideChange(event){
     }
 }
 
+function optionWindowOpening(){
+    document.getElementById('optionsWindow').classList.remove('сlosedWindow');
+    document.getElementById('overlayWindow').classList.add('overlayWindowOption');
+}
+
+function optionWindowClosing(){
+    document.getElementById('optionsWindow').classList.add('сlosedWindow');
+    document.getElementById('overlayWindow').classList.remove('overlayWindowOption');
+}
+
 function listenersInit(){
+
+    options.optionListenersInit();
+
     sideChoosingDiv.addEventListener('click',function(event){
         registerSideChange(event)
     });
@@ -259,14 +314,51 @@ function listenersInit(){
             mainMenuName.classList.remove('mobileMod');
         }
     }
+
+    document.getElementById('btnOptionsClose').addEventListener('click', function(){
+        optionWindowClosing()
+    });
+
+    document.getElementById('btnOptions').addEventListener('click', function(){
+        optionWindowOpening()
+    })
+
+    document.getElementById('btnOptionsEscape').addEventListener('click', function(){
+        optionWindowOpening()
+    })
+
+    document.getElementById('btnOptionsMainWindow').addEventListener('click', function(){
+        optionWindowOpening()
+    })
 }
 
-mainContainer.mainContainerInit();
+audioManager.audioInit()
 
-userDataStorage.userDataRead();
+mainContainer.mainContainerInit();
 
 listenersInit();
 
 mainWindowBackgroundInit()
 
 gamePadUnit.gamepadInit();
+
+// setTimeout(() => {
+//     helloUserWindow()
+//     setTimeout(() => {
+//         overlayWindow.classList.add('overlayWindowSolid');
+    
+//         setTimeout(() => {
+            
+//             hangarPage.classList.add('сlosedWindow');
+    
+//             overlayWindow.classList.remove('overlayWindowSolid')
+//             setTimeout(() => {
+//                 if (document.getElementById('battleWindow')){
+//                     escapeWindow.classList.remove('сlosedWindow');
+//                     document.getElementById('battleWindow').style.display = 'block'
+//                 }else {battleInit()}
+
+//             }, 500);
+//         }, 950);
+//     }, 2500);
+// }, 500);

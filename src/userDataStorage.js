@@ -1,204 +1,93 @@
+import {initializeApp } from "https://www.gstatic.com/firebasejs/9.21.0/firebase-app.js";
+import {getDatabase, ref, set, onValue, child, push, update } from "https://www.gstatic.com/firebasejs/9.21.0/firebase-database.js";
 
 const userDataStorage = {
     userData:{},
 
-    nameOfCellOnServer :'Lovkov_Ivan_SW_TNC',
+    firebaseInit:function (){
+        initializeApp(userDataStorage.firebaseConfig)
+        this.userDataRead()
+    },
+
+    firebaseConfig: {
+        apiKey: "AIzaSyAV__rCSHoBh--OfHIU_FZBfUbzKmUEU8M",
+        authDomain: "sw-tnc.firebaseapp.com",
+        databaseURL: "https://sw-tnc-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "sw-tnc",
+        storageBucket: "sw-tnc.appspot.com",
+        messagingSenderId: "925630333619",
+        appId: "1:925630333619:web:1bf6271c53644822a466c6"
+    },
+
+    writeStorageData : function (path,  jsonData){
+        set(ref(getDatabase(), 'Players/'), jsonData);
+        this.userDataRead()
+    },
 
     userAdd : function (userLogin, userPassword, userSide) {
+        if(userDataStorage.userData == null){userDataStorage.userData = {}}
         const userID = userLogin.toLowerCase();
         this.userData[userID] = {userLogin, userPassword, userSide};
         this.userData[userID].statistics = {
             rebel : {
-                wins:0,
-                games: 0,
-                inflictedDamage: 0,
-                inflictedDamageToFlagman: 0,
-                deaths: 0,
-                userStats: function(){
-                    const outputString = `Игр сыграно: ${this.games}Побед: ${this.wins}
-                    Нанесено урона: ${this.inflictedDamage}
-                    Нанесено урона флагману: ${this.inflictedDamageToFlagman}
-                    Смертей: ${this.deaths}`
-                    return outputString
-                }
+              'Wins':0,
+              'Games': 0,
+              'Inflicted damage': 0,
+              'Inflicted damage to flagman': 0,
+              'Deaths': 0,
             },
             empire : {
-                wins:0,
-                games: 0,
-                inflictedDamage: 0,
-                inflictedDamageToFlagman: 0,
-                deaths: 0,
-                userStats: function(){
-                    const outputString = `Игр сыграно: ${this.games}Побед: ${this.wins}
-                    Нанесено урона: ${this.inflictedDamage}
-                    Нанесено урона флагману: ${this.inflictedDamageToFlagman}
-                    Смертей: ${this.deaths}`
-                    return outputString
-                }
+                'Wins':0,
+                'Games': 0,
+                'Inflicted damage': 0,
+                'Inflicted damage to flagman': 0,
+                'Deaths': 0,
             },
         },
         this.userDataSendToStorage();
+
     },
 
     userDataSendToStorage : function(){
-        // userDataStorage.updateJQ(JSON.stringify(this.userData))
-        localStorage.setItem ('SWUserData', JSON.stringify(this.userData))
+        localStorage.setItem ('SWUserData', JSON.stringify(this.userData));
+        this.writeStorageData('Players/',JSON.stringify(this.userData))
     },
 
     getUserKeys: function() {
         const keysLoginPassword = {};
-        Object.keys(this.userData).forEach(element => {
-            keysLoginPassword[this.userData[element].userLogin.toLowerCase()] = this.userData[element].userPassword;
-
-        });
+        if (this.userData){
+            Object.keys(this.userData).forEach(element => {
+                keysLoginPassword[this.userData[element].userLogin.toLowerCase()] = this.userData[element].userPassword;
+            });
+        }
         return keysLoginPassword;
     },
 
     userDataRead : function(){
-        if (!localStorage.SWUserData) {
-            userDataStorage.userDataSendToStorage()
-        } else {
-            userDataStorage.userData = JSON.parse(localStorage.getItem('SWUserData'))
-        }
-        // userDataStorage.userData = userDataStorage.readJQ()
-    },
-    
-    readJQ: function(nameOfCell){
-        let AjaxHandlerScript="http://fe.it-academy.by/AjaxStringStorage2.php";
-        let StringName = 'Lovkov_Ivan_SW_TNC';
-        let outputData
+        try {
+            const db = getDatabase();
+            const playersData = ref(db, 'Players/');
+      
+            onValue(playersData, (snapshot) => {
 
-        function Read() 
-        {
-          $.ajax(
-            {
-              url : AjaxHandlerScript, type : 'POST', cache : false, dataType:'json',
-              data : { f : 'READ', n : StringName},
-              success : ReadReady, error : ErrorHandler
-            }
-          );
-        }
-        
-        function ReadReady(ResultH)
-        {
-          if ( ResultH.error!=undefined )
-            {alert(ResultH.error); }
-          else
-          {
-            console.log(outputData)
-            return outputData;
+              const data = snapshot.val();
+              if (data) {
+                userDataStorage.userData = JSON.parse(data)
+              }
+              else {
+                if (!localStorage.SWUserData) {
+                    userDataStorage.userData = JSON.parse(localStorage.getItem('SWUserData'))
+                } else {
+                    // userDataStorage.userDataSendToStorage()
+                }
+              }
+            });
           }
-        }
-        
-        function ErrorHandler(jqXHR,StatusStr,ErrorStr)
-        {
-          console.log(StatusStr+' '+ErrorStr);
-        }
-        Read();
-
-    },
-    
-    insertJQ: function(jsonContent,nameOfCell = userDataStorage.nameOfCellOnServer){
-        let AjaxHandlerScript="http://fe.it-academy.by/AjaxStringStorage2.php";
-        let StringName = 'Lovkov_Ivan_SW_TNC';
-        let stringInfo = jsonContent;
-
-        function insert() 
-        {
-          $.ajax(
-            {
-              url : AjaxHandlerScript, type : 'POST', cache : false, dataType:'json',
-              data : { f : 'INSERT', n : StringName, v: stringInfo},
-              success : dataInsert, error : ErrorHandler
-            }
-          );
-        }
-        
-        function dataInsert(ResultH)
-        {
-          if ( ResultH.error!=undefined )
-            {console.log(ResultH.error); }
-          else
-          {
-            console.log(ResultH.result)
+          catch (e) {
+            this.myView.showErrorApp();
           }
-        }
+        },
         
-        function ErrorHandler(jqXHR,StatusStr,ErrorStr)
-        {
-          console(StatusStr+' '+ErrorStr);
-        }
-        insert();
-    },
-
-    lockgetJQ: function( password){
-        let AjaxHandlerScript="http://fe.it-academy.by/AjaxStringStorage2.php";
-        let StringName = 'Lovkov_Ivan_SW_TNC';
-        password = 12345678
-        function lockGet () 
-        {
-          $.ajax(
-            {
-              url : AjaxHandlerScript, type : 'POST', cache : false, dataType:'json',
-              data : { f : 'LOCKGET', n : StringName, p:password},
-              success : dataGet, error : ErrorHandler
-            }
-          );
-        }
-        
-        function dataGet(ResultH)
-        {
-            if ( ResultH.error!=undefined ){
-                console.log(ResultH.error); 
-            }
-            else
-            {
-                console.log(ResultH); 
-              return ResultH.result;
-            }
-        }
-        
-        function ErrorHandler(jqXHR,StatusStr,ErrorStr)
-        {
-          console(StatusStr+' '+ErrorStr);
-        }
-        lockGet();
-        
-    },
-
-    updateJQ: function(jsonContent,nameOfCell = userDataStorage.nameOfCellOnServer, password){
-        let AjaxHandlerScript="http://fe.it-academy.by/AjaxStringStorage2.php";
-        let StringName = nameOfCell;
-        let stringInfo = jsonContent;
-        password = 12345678
-
-        function update() 
-        {
-          $.ajax(
-            {
-              url : AjaxHandlerScript, type : 'POST', cache : false, dataType:'json',
-              data : { f : 'UPDATE', n : StringName, p:password, v: stringInfo},
-              success : ReadReady, error : ErrorHandler
-            }
-          );
-        }
-        
-        function ReadReady(ResultH)
-        {
-          if ( ResultH.error!=undefined )
-            {console.log(ResultH.error); }
-          else
-          {
-            return 'Done';
-          }
-        }
-        
-        function ErrorHandler(jqXHR,StatusStr,ErrorStr)
-        {
-          console(StatusStr+' '+ErrorStr);
-        }
-        update();
-    },
 };
 
 // userDataStorage.userAdd('Ivanko', '1243','rebel');
@@ -210,8 +99,20 @@ const currentUserData = {
     currentUserInit(userData){
         this.userSide = userData.userSide
         this.userLogin = userData.userLogin;
+        this.userStatistics = userData.statistics
+        this.parsedUserStatistics = this.currentUserStringStatistcsParse();
+    },
 
-    }
+    currentUserStringStatistcsParse: function(){
+      let statString = 'Statistics:';
+      const userSide = this.userSide;
+      const userStats = this.userStatistics[this.userSide];
+
+      for (let stat in userStats){
+        statString += `\n<li>${stat}: ${userStats[stat]}</li>`
+      };
+      return statString
+    },
 }
 
 export {userDataStorage, currentUserData}

@@ -1,12 +1,12 @@
 import {THREE, GLTFLoader} from './three_libs_import.js'
+import {TextGeometry, FontLoader, CSS2DRenderer,CSS2DObject} from "./three_libs_import.js";
 import{userInterFace}from './userInterFace.js'
+import {options} from './options.js'
+import {audioManager} from './audioManager.js'
 
-
-let scene, camera, renderer, backgroundAnimations, backgroundMusic;
+let scene, camera, renderer, backgroundAnimations, backgroundMusic, milkyway, labelRenderer, moonLabel;
 let timers = [];
 let loader = new GLTFLoader();
-
-
 
 function mainWindowBackgroundInit(){
     scene = new THREE.Scene();
@@ -17,23 +17,25 @@ function mainWindowBackgroundInit(){
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.domElement.id = 'mainBackgroundWindow';
     document.body.appendChild(renderer.domElement);
+
+    // labelRenderer = new CSS2DRenderer();
+    // labelRenderer.setSize( window.innerWidth, window.innerHeight );
+    // labelRenderer.domElement.style.position = 'absolute';
+    // labelRenderer.domElement.style.top = '0px';
+    // labelRenderer.domElement.id = 'css2RenderText'
+    // document.body.appendChild( labelRenderer.domElement );
+
     backgroundMusicInit()
 
-    userInterFace.textLoader(scene);
-    userInterFace.css2textLoader(scene, renderer, camera);   
+    
 
-
+    // userInterFace.textLoader(scene);
+    // userInterFace.css2textLoader(scene, renderer, camera);  
 
 
     function backgroundMusicInit(){
-        backgroundMusic = new Audio();
-        backgroundMusic.preload = 'auto';
-        backgroundMusic.loop = true;
-        backgroundMusic.muted = false;
-        backgroundMusic.volume = 0.1;
-        backgroundMusic.src = 'resource/pageMedia/EmpireMarch.mp3';   
-        tryToPlayBackroundMusic()  
-        
+        backgroundMusic = audioManager.audioList.backgroundMusic
+        tryToPlayBackroundMusic()
         function tryToPlayBackroundMusic(){
             backgroundMusic.play().catch(error =>{
                 setTimeout(() => {
@@ -53,7 +55,7 @@ function mainWindowBackgroundInit(){
     scene.add(light);
 
     loader.load('resource/3DModels/starsBackground/scene.gltf', function(gltf){
-        let milkyway = gltf.scene
+        milkyway = gltf.scene
         milkyway.scale.set(1000000,1000000,1000000);
         milkyway.name = 'milkyway';
         scene.add(gltf.scene);
@@ -115,29 +117,37 @@ function mainWindowBackgroundInit(){
             starfighterSpawning : function(scene){
                 let timerID = `starfighterSpawningTask_${Date.now()}`
                 timerID = setInterval(() => {
-                    let modelPath = this.starfightersPathArray[Math.round(Math.random()*(this.starfightersPathArray.length-1))];
-                    let starfighterID = `starfighter_${Date.now()}`
-    
-                    loader.load(modelPath, function(gltf){
-                        let starfighter = gltf.scene
-                        starfighter.scale.set(20,20,20);
-                        starfighter.name = starfighterID;
-                        scene.add(gltf.scene);
-                        modelPath=='resource/3DModels/X-Wing/scene.gltf'?starfighter.rotation.y = 180/180*Math.PI:starfighter.rotation.y = 0/180*Math.PI;
-    
-                        starfighter.position.x = 0;
-                        starfighter.position.y = 0;
-                        starfighter.position.z = -20000;
-                        starfighter.accelerationX = (Math.random()+0.2)*2-1.2;
-                        starfighter.accelerationY = (Math.random()+0.2)*2-1.2;
-                        
-                        backgroundAnimations.starfighterList[starfighterID] = starfighter;
-                            setTimeout(() => {
-                                scene.remove(starfighter)
-                                delete backgroundAnimations.starfighterList[starfighterID]
-                                starfighter = null;
-                            }, 27000);
-                    });
+                    if (Object.keys(backgroundAnimations.starfighterList).length<10){
+                        let modelPath = this.starfightersPathArray[Math.round(Math.random()*(this.starfightersPathArray.length-1))];
+                        let starfighterID = `starfighter_${Date.now()}`
+        
+                        loader.load(modelPath, function(gltf){
+                            let starfighter = gltf.scene
+                            starfighter.scale.set(20,20,20);
+                            starfighter.name = starfighterID;
+                            scene.add(gltf.scene);
+                            modelPath=='resource/3DModels/X-Wing/scene.gltf'?starfighter.rotation.y = 180/180*Math.PI:starfighter.rotation.y = 0/180*Math.PI;
+        
+                            starfighter.position.x = 0;
+                            starfighter.position.y = 0;
+                            starfighter.position.z = -20000;
+                            starfighter.accelerationX = (Math.random()+0.2)*2-1.2;
+                            starfighter.accelerationY = (Math.random()+0.2)*2-1.2;
+                            
+                            backgroundAnimations.starfighterList[starfighterID] = starfighter;
+
+                            const moonDiv = document.createElement( 'div' );
+                            moonDiv.style.zIndex = -1;
+                            moonDiv.className = 'css2Text';
+                            // moonDiv.textContent = '¤';
+                            moonDiv.style.backgroundColor = 'transparent';
+                    
+                            moonLabel = new CSS2DObject( moonDiv );
+                            moonLabel.position.set( 0, 0, 0 );
+                            moonLabel.name = 'testing_text1'
+                            starfighter.add( moonLabel );
+                        });
+                    }
                 },3000);
                 timers.push(timerID)
             },
@@ -170,6 +180,17 @@ function mainWindowBackgroundInit(){
                                 frigate.position.z = -200000;
                                 
                                 backgroundAnimations.frigateList[frigateID] = frigate;
+
+                                // const moonDiv = document.createElement( 'div' );
+                                // moonDiv.style.zIndex = -1;
+                                // moonDiv.className = 'css2Text';
+                                // moonDiv.textContent = '¤';
+                                // moonDiv.style.backgroundColor = 'transparent';
+                        
+                                // moonLabel = new CSS2DObject( moonDiv );
+                                // moonLabel.position.set( 0, 0, 0 );
+                                // moonLabel.name = 'testing_text1'
+                                // frigate.add( moonLabel );
                             });
                         }
                     },5000);
@@ -178,8 +199,10 @@ function mainWindowBackgroundInit(){
     
             redrawing: function(scene){
                 let planet = scene.getObjectByName('tatooine_planet',true);
-                planet.rotation.y +=0.0001
-                planet.rotation.x +=0.0002
+                if(planet){
+                    planet.rotation.y +=0.0001;
+                    planet.rotation.x +=0.0002;
+                }
     
                 Object.keys(backgroundAnimations.starfighterList).forEach(element => {
                     const starfighter = backgroundAnimations.starfighterList[element];
@@ -224,7 +247,10 @@ function mainWindowBackgroundInit(){
             if (backgroundAnimations.working){
                 backgroundAnimations.redrawing(scene);
                 renderer.render(scene,camera);
+                // labelRenderer.render(scene, camera);
                 requestAnimationFrame(animate); 
+
+
             }
         };
     }
@@ -242,6 +268,7 @@ function mainWindowBackgroundInit(){
 function backgroundRemove(){
     backgroundMusic.pause();
 
+    document.getElementById('css2RenderText')?document.getElementById('css2RenderText').remove():false;
     backgroundAnimations.working = false;
     timers.forEach(timer => {
         clearTimeout(timer)
