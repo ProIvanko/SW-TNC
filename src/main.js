@@ -256,7 +256,10 @@ function listenersInit(){
         overlayWindow.classList.add('overlayWindowSolid');
     
         setTimeout(() => {
-            
+            if(document.getElementById('css2RenderText')){
+                document.getElementById('health-bar').style.zIndex = '1';
+                document.getElementById('css2RenderText').style.zIndex = '1';
+            }
             hangarPage.classList.add('сlosedWindow');
     
             overlayWindow.classList.remove('overlayWindowSolid')
@@ -284,7 +287,9 @@ function listenersInit(){
         registrationWindowOpening();
     })
     
-    btnLeaveBattleEscape.addEventListener('click', function (){  
+    btnLeaveBattleEscape.addEventListener('click', function (){ 
+        document.getElementById('health-bar').style.zIndex = '-100';
+        document.getElementById('css2RenderText').style.zIndex = '-100';
         btnStartBattle.innerText = 'Продолжить бой'
         hangarWindowOpening();
     })
