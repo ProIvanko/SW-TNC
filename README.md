@@ -6,7 +6,7 @@ Vanilla JavaScript · Three.js · Firebase
 🔗 **[Играть в браузере](https://proivanko.github.io/SW-TNC/)**
 
 <img width="960" height="475" alt="image" src="https://github.com/user-attachments/assets/f28b93c1-b014-43b0-9957-2dbe52e614e5" />
-
+---
 <img width="960" height="475" alt="image" src="https://github.com/user-attachments/assets/e7b3863a-ddcf-4f5d-9ad1-488a4c1eeef5" />
 
 ---
